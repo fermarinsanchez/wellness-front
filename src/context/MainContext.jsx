@@ -1,11 +1,12 @@
-import React, { useState, createContext, useCallback, useContext } from 'react'
+import React, { useState, createContext, useContext} from 'react'
 
 const MainContext = createContext()
 
-export const useMainContext = () => useContext(useMainContext)
+export const useMainContext = () => useContext(MainContext)
 
 export const MainDataProvider = ({ children }) => {
-    const [data, setData] = useState(null)
+
+    const [data, setData] = useState('hello from context')
 
     const value = { data, setData }
 
