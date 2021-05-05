@@ -5,13 +5,14 @@
     list-style: none;
     cursor: pointer;
     padding-bottom: 60px;
+    width: 100%;
+    height: auto;
   }
   
   .pagination a {
     padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #839672;
-    color: #839672;
+    border: 1px solid #007BFF;
+    color: #007BFF !important;
   }
   
   .pagination__link {
@@ -19,8 +20,8 @@
   }
   
   .pagination__link--active a {
-    color: #fff;
-    background: #839672;
+    color: #fff !important;
+    background: #007BFF;
   }
   
   .pagination__link--disabled a {

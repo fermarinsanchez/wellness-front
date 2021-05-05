@@ -10,3 +10,17 @@ export const _dateFormat = (dateToFormat) => {
     const year = date?.getFullYear();
     return `${year}-${month}-${day}`;
   };
+
+export const _onlyOneDay = (data, day) => {
+  let oneDay = []
+  for(let i = 0; i < data.length; i++) {
+    if (data[i]?.date === day) {
+      oneDay.push(data[i])
+    }
+  }
+  return oneDay
+}
+
+// next features: filter data for more detailed Charts
+
+  

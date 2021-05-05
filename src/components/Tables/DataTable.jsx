@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { deleteData } from '../../services/Api'
 import ReactPaginate from 'react-paginate'
-import { Table, Button } from 'reactstrap';
-import ModalForm from '../Modals/ModalForm'
+import { Table, Button } from 'react-bootstrap';
 import './DataTable.css'
 
-const PER_PAGE = 6
+const PER_PAGE = 10
 
 function DataTable(props) {
 
@@ -33,9 +32,9 @@ function DataTable(props) {
                     <td>{item.costPerHour}</td>
                     <td>
                         <div style={{ width: "110px" }}>
-                            <Button color='primary' item={item} onClick={() => handleEditClick(item)}>Edit</Button>
+                            <Button className='btn btn-primary' size='sm' item={item} onClick={() => handleEditClick(item)}>Edit</Button>
 
-                            <Button color="danger" onClick={() => deleteItem(item.id)}>Del</Button>
+                            <Button className='btn btn-danger ml-2' size='sm' onClick={() => deleteItem(item.id)}>Del</Button>
                         </div>
                     </td>
                 </tr>
@@ -52,41 +51,22 @@ function DataTable(props) {
         }
     }
 
-    // const items = props.items?.map(item => {
-    //     return (
-    //         <tr key={item.id}>
-    //             <th scope="row">{item.date}</th>
-    //             <td>{item.hours}</td>
-    //             <td>{item.consume}</td>
-    //             <td>{item.price}</td>
-    //             <td>{item.costPerHour}</td>
-    //             <td>
-    //                 <div style={{ width: "110px" }}>
-    //                     <ModalForm buttonLabel="Edit" item={item} updateState={props.updateState} />
-
-    //                     <Button color="danger" onClick={() => deleteItem(item.id)}>Del</Button>
-    //                 </div>
-    //             </td>
-    //         </tr>
-    //     )
-    // })
-
     return (
-        <Table responsive hover>
+        <Table responsive striped bordered hover>
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Hours</th>
-                    <th>Consume</th>
-                    <th>Price</th>
-                    <th>Cost per hour</th>
+                    <th>Consume (Wh)</th>
+                    <th>Price (€/kWh)</th>
+                    <th>Cost per hour (€)</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {currentPageData}
             </tbody>
-            <div>
+            <div className='mt-4'>
                 <ReactPaginate
                     previousLabel={'<'}
                     nextLabel={'>'}

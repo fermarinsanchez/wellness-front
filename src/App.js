@@ -1,47 +1,48 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Container, Row, Col, Form } from 'reactstrap'
 import { getAllData, createData, updateData } from './services/Api'
-import GetDataHook from './hooks/GetDataHook'
-import ModalTest from './components/Modals/ModalTest'
+import ModalForm from './components/Modals/ModalForm'
 import DataTable from './components/Tables/DataTable'
 import { CSVLink } from "react-csv"
 import { Button } from 'react-bootstrap'
-import { _dateFormat } from './utils/_dateFormat'
+import { _dateFormat, _onlyOneDay } from './utils/helpers'
+import Spinner from './components/Spinner/Spinner'
+import ModalGraph from './components/Modals/ModalGraph'
 
 function App() {
-
-  const { data, isLoading } = GetDataHook(getAllData)
   const [items, setItems] = useState()
-  const [newData, SetNewData] = useState({})
-  const [tempData, setTempData] = useState({})
-  const [modalShow, setModalShow] = React.useState(false);
-
+  const [isLoading, setIsLoading] = useState(false)
+  const [newData, setNewData] = useState({})
+  const [modalShow, setModalShow] = useState(false);
+  const [modalGraphShow, setModalGraphShow] = useState(false);
+  const [oneRange, setOneRange] = useState([])
+  const [oneDate, setOneDate] = useState('2018-12-01')
 
   useEffect(() => {
     getAllData()
       .then(async (data) => {
-        data?.map((elem) => {
+        await data.map((elem) => {
           elem.date = _dateFormat(elem?.date)
           return elem
         })
         setItems(data)
+        setOneRange(_onlyOneDay(data, oneDate))
+        setIsLoading(true)
       })
-  }, [setItems]);
-
+  }, [setItems, oneDate]);
 
   const handleChange = (event) => {
 
     const { name, value } = event.target
 
     if (event.target.name === 'date') {
-      SetNewData(prev => {
+      setNewData(prev => {
         return {
           ...prev,
           [name]: value,
         }
       })
     } else {
-      SetNewData(prev => {
+      setNewData(prev => {
         return {
           ...prev,
           [name]: Number(value),
@@ -49,7 +50,6 @@ function App() {
       })
     }
   }
-
 
   const handleSubmitNewData = useCallback((event) => {
     event.preventDefault()
@@ -63,6 +63,8 @@ function App() {
               return elem
             })
             setItems(data)
+            setNewData({})
+            setModalShow(false)
           })
       })
       .catch(e => console.log(e))
@@ -70,7 +72,8 @@ function App() {
   }, [newData])
 
   const editData = (data) => {
-    SetNewData(data)
+    console.log('newData form handler: ', data)
+    setNewData(data)
   }
 
   const handleEditData = (event) => {
@@ -81,8 +84,6 @@ function App() {
     formData.consume = newData.consume
     formData.price = newData.price
     formData.costPerHour = newData.costPerHour
-    console.log(newData.id)
-    console.log(formData)
     updateData(newData.id, formData)
       .then(() => {
         getAllData()
@@ -92,13 +93,11 @@ function App() {
               return elem
             })
             setItems(data)
-            
+            setNewData({})
+            setModalShow(false)
           })
       })
-
   }
-
-
 
   const updateState = (item) => {
     const itemIndex = items.findIndex(data => data.id === item.id)
@@ -111,53 +110,65 @@ function App() {
     setItems(updatedItems)
   }
 
-
   return (
-    <Container className="App">
-      <Row>
-        <Col>
-          <h1 style={{ margin: "20px 0" }}>CRUD Database</h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          {/* <CSVLink
+    <div className="container">
+      <div className='row'>
+        <div className='col-10'>
+          <h1 style={{ margin: "20px 0" }}>Wellness Technical Test</h1>
+        </div>
+      </div>
+      <div className='row'>
+        <div className='col-10'>
+          { isLoading && <CSVLink
               filename={"db.csv"}
               color="primary"
               style={{float: "left", marginRight: "10px"}}
-              className="btn btn-primary"
+              className="btn btn-info"
               data={items}>
               Download CSV
-            </CSVLink> */}
-          {/* <ModalForm buttonLabel="Add Item" addItemToState={addItemToState}/> */}
-          <Button variant="success" onClick={() => setModalShow(true)}>
+            </CSVLink>}
+          <Button variant="success" className='mb-4' onClick={() => setModalShow(true)}>
             Add new data
-      </Button>
+          </Button>
 
-          <ModalTest
+          <Button variant="info" className='mb-4 ml-2' onClick={() => setModalGraphShow(true)}>
+            View Graphics
+          </Button>
+
+          <ModalForm
             show={modalShow}
             onHide={() => setModalShow(false)}
             handleChange={handleChange}
             handleSubmitNewData={handleSubmitNewData}
             handleEditData={handleEditData}
             newData={newData}
+            setNewData={setNewData}
           />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          {!isLoading ?
+          <ModalGraph 
+            show={modalGraphShow}
+            onHide={() => setModalGraphShow(false)}  
+            dialogClassName="modal-100w"          
+            oneRange={oneRange}
+            setOneRange={setOneRange}
+            setOneDate={setOneDate}            
+          />
+        </div>
+      </div>
+      <div className='row'>
+        <div className='col-12'>
+          {isLoading ?
             <DataTable
               items={items}
               updateState={updateState}
               deleteItemFromState={deleteItemFromState}
               editData={editData}
               setModalShow={setModalShow}
-            /> : null}
-        </Col>
-      </Row>
-
-    </Container>
+            />
+            :
+            <Spinner />}
+        </div>
+      </div>
+    </div>
   )
 }
 
