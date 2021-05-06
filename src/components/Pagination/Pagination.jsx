@@ -1,10 +1,8 @@
 import React from 'react'
-import { useMainContext } from './context/MainContext'
 import { Pagination } from 'react-bootstrap'
 
 export default function TablePagination(props) {
 
-    const { data } = useMainContext()
 
     let items = []
     let active = 1

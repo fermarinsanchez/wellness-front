@@ -1,24 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Form, Modal } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
 
 export default function ModalGraph(props) {
 
-    const hoursMapped = props.oneRange.map(elem => {
-        return elem?.hours
-    })
-
-    const consumeMapped = props.oneRange.map(elem => {
-        return elem?.consume
-    })
-
-    const priceMapped = props.oneRange.map(elem => {
-        return elem?.price
-    })
-
-    const costMapped = props.oneRange.map(elem => {
-        return elem?.costPerHour
-    })
+    const hoursMapped = props.oneRange.map(elem => elem?.hours)
+    const consumeMapped = props.oneRange.map(elem => elem?.consume)
+    const priceMapped = props.oneRange.map(elem => elem?.price)
+    const costMapped = props.oneRange.map(elem => elem?.costPerHour)
 
     const data = {
         labels: [...hoursMapped],
@@ -88,8 +77,12 @@ export default function ModalGraph(props) {
         },
     }
 
+  
+
     const handleDateGraph = (e) => {
-        props.setOneDate(e.target.value)
+        let wrapper = e.target.value.split('-')
+        let sortedDate = `${wrapper[2]}/${wrapper[1]}/${wrapper[0]}`
+        props.setOneDate(sortedDate)
     }
 
     return (
@@ -107,7 +100,7 @@ export default function ModalGraph(props) {
                         placeholder="Enter a date"
                         onChange={handleDateGraph}
                         name='date'
-                        defaultValue={props.oneDate}
+                        defaultValue={'2018-12-01'}
                         // min={props.oneRange[0]?.date}
                         // max={props.oneRange[props.oneRange.length-1]?.date}
                         min="2018-12-01"

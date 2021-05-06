@@ -12,15 +12,17 @@ function App() {
   const [items, setItems] = useState()
   const [isLoading, setIsLoading] = useState(false)
   const [newData, setNewData] = useState({})
+  const [editForm, setEditForm] = useState({})
+  const [edit, setEdit] = useState(false)
   const [modalShow, setModalShow] = useState(false);
   const [modalGraphShow, setModalGraphShow] = useState(false);
   const [oneRange, setOneRange] = useState([])
-  const [oneDate, setOneDate] = useState('2018-12-01')
+  const [oneDate, setOneDate] = useState('01/12/2018')
 
   useEffect(() => {
     getAllData()
-      .then(async (data) => {
-        await data.map((elem) => {
+      .then(data => {
+        data.map((elem) => {
           elem.date = _dateFormat(elem?.date)
           return elem
         })
@@ -30,10 +32,10 @@ function App() {
       })
   }, [setItems, oneDate]);
 
-  const handleChange = (event) => {
+  const handleChangeNew = (event) => {
 
     const { name, value } = event.target
-
+console.log(name, value)
     if (event.target.name === 'date') {
       setNewData(prev => {
         return {
@@ -51,9 +53,30 @@ function App() {
     }
   }
 
+  const handleChangeEdit = (event) => {
+
+    const { name, value } = event.target
+
+    if (event.target.name === 'date') {
+      setEditForm(prev => {
+        return {
+          ...prev,
+          [name]: value,
+        }
+      })
+    } else {
+      setEditForm(prev => {
+        return {
+          ...prev,
+          [name]: Number(value),
+        }
+      })
+    }
+  }
+
   const handleSubmitNewData = useCallback((event) => {
     event.preventDefault()
-    console.log('From Modal Form', newData)
+    console.log({newData})
     createData(newData)
       .then(data => {
         getAllData()
@@ -72,42 +95,41 @@ function App() {
   }, [newData])
 
   const editData = (data) => {
-    console.log('newData form handler: ', data)
-    setNewData(data)
+    setEditForm(data)
   }
 
   const handleEditData = (event) => {
     event.preventDefault()
     const formData = {}
-    formData.date = newData.date
-    formData.hours = newData.hours
-    formData.consume = newData.consume
-    formData.price = newData.price
-    formData.costPerHour = newData.costPerHour
-    updateData(newData.id, formData)
+    formData.hours = editForm.hours
+    formData.consume = editForm.consume
+    formData.price = editForm.price
+    formData.costPerHour = editForm.costPerHour
+    updateData(editForm.id, formData)
       .then(() => {
         getAllData()
-          .then(async (data) => {
+          .then((data) => {
             data?.map((elem) => {
               elem.date = _dateFormat(elem?.date)
               return elem
             })
             setItems(data)
-            setNewData({})
+            setEdit(false)
+            setEditForm({})
             setModalShow(false)
           })
       })
   }
 
-  const updateState = (item) => {
-    const itemIndex = items.findIndex(data => data.id === item.id)
-    const newArray = [...items.slice(0, itemIndex), item, ...items.slice(itemIndex + 1)]
-    setItems(newArray)
-  }
-
   const deleteItemFromState = (id) => {
     const updatedItems = items.filter(item => item.id !== id)
     setItems(updatedItems)
+  }
+
+  const handleOnHideModalForm = () => {
+    setEditForm({})
+    setEdit(false)
+    setModalShow(false)
   }
 
   return (
@@ -119,13 +141,13 @@ function App() {
       </div>
       <div className='row'>
         <div className='col-10'>
-          { isLoading && <CSVLink
-              filename={"db.csv"}
-              color="primary"
-              style={{float: "left", marginRight: "10px"}}
-              className="btn btn-info"
-              data={items}>
-              Download CSV
+          {isLoading && <CSVLink
+            filename={"db.csv"}
+            color="primary"
+            style={{ float: "left", marginRight: "10px" }}
+            className="btn btn-info"
+            data={items}>
+            Download CSV
             </CSVLink>}
           <Button variant="success" className='mb-4' onClick={() => setModalShow(true)}>
             Add new data
@@ -137,20 +159,25 @@ function App() {
 
           <ModalForm
             show={modalShow}
-            onHide={() => setModalShow(false)}
-            handleChange={handleChange}
+            onHide={handleOnHideModalForm }
+            handleChangeNew={handleChangeNew}
+            handleChangeEdit={handleChangeEdit}
             handleSubmitNewData={handleSubmitNewData}
             handleEditData={handleEditData}
+            editForm={editForm}
+            edit={edit}
+            setEdit={setEdit}
             newData={newData}
             setNewData={setNewData}
           />
-          <ModalGraph 
+          <ModalGraph
             show={modalGraphShow}
-            onHide={() => setModalGraphShow(false)}  
-            dialogClassName="modal-100w"          
+            onHide={() => setModalGraphShow(false)}
+            dialogClassName="modal-100w"
             oneRange={oneRange}
             setOneRange={setOneRange}
-            setOneDate={setOneDate}            
+            setOneDate={setOneDate}
+            oneDate={oneDate}
           />
         </div>
       </div>
@@ -159,7 +186,6 @@ function App() {
           {isLoading ?
             <DataTable
               items={items}
-              updateState={updateState}
               deleteItemFromState={deleteItemFromState}
               editData={editData}
               setModalShow={setModalShow}

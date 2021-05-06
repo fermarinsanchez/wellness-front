@@ -27,8 +27,6 @@ export const getAllData = () => {
 }
 //UPDATE
 export const updateData = (id, {...tempState}) => {
-    console.log(id)
-    console.log({...tempState})
     return http.patch(`/details/${id}`, {...tempState})
 }
 

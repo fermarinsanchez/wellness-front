@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap';
+import { _changeUSDate } from '../../utils/helpers'
 
 export default function ModalForm(props) {
 
-    const [edit, setEdit] = useState(false)
+
 
     useEffect(() => {
-        if (props.newData.price) {
-            setEdit(true)
+        if (props.editForm.price) {
+            props.setEdit(true)
         }
-    }, [props.newData])
-
-    // const handleCloseModal = () => {
-    //     props.onHide()
-    // }
+    }, [props.editForm])
 
     return (
         <Modal
@@ -24,56 +21,60 @@ export default function ModalForm(props) {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    {edit ? 'Edit Data' : 'Add new data'}
+                    {props.edit ? 'Edit Data' : 'Add new data'}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <h4>Fill the inputs</h4>
-                <Form onSubmit={edit ? props.handleEditData : props.handleSubmitNewData}>
+                {props.edit && <p><b>Current date: {props.editForm.date}</b></p>}
+                <Form onSubmit={props.edit ? props.handleEditData : props.handleSubmitNewData}>
                     <Form.Group>
-                        <Form.Label>Date</Form.Label>
-                        <Form.Control
-                            type="date"
-                            placeholder="Enter a date"
-                            onChange={props.handleChange}
-                            name='date'
-                            defaultValue={props.newData.date}
-                        />
+                        {( !props.edit &&
+                            <React.Fragment>
+                                <Form.Label>Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    placeholder="Enter a date"
+                                    onChange={props.edit ? props.handleChangeEdit : props.handleChangeNew}
+                                    name='date'
+                                />
+                            </React.Fragment>
+                        )}
                         <Form.Label>Hours</Form.Label>
                         <Form.Control
                             type="number"
                             placeholder="Enter hour"
-                            onChange={props.handleChange}
+                            onChange={props.edit ? props.handleChangeEdit : props.handleChangeNew}
                             name='hours'
                             step='any'
-                            defaultValue={props.newData.hours}
+                            defaultValue={props.editForm.hours}
                         />
                         <Form.Label>Cosume (Wh)</Form.Label>
                         <Form.Control
                             type="number"
                             placeholder="Enter a consume"
-                            onChange={props.handleChange}
+                            onChange={props.edit ? props.handleChangeEdit : props.handleChangeNew}
                             name='consume'
                             step='any'
-                            defaultValue={props.newData.consume}
+                            defaultValue={props.editForm.consume}
                         />
                         <Form.Label>Price (€/KWh)</Form.Label>
                         <Form.Control
                             type="number"
                             placeholder="Enter a price"
-                            onChange={props.handleChange}
+                            onChange={props.edit ? props.handleChangeEdit : props.handleChangeNew}
                             name='price'
                             step='any'
-                            defaultValue={props.newData.price}
+                            defaultValue={props.editForm.price}
                         />
                         <Form.Label>Cost per hour (€)</Form.Label>
                         <Form.Control
                             type="number"
                             placeholder="Enter a CPH"
-                            onChange={props.handleChange}
+                            onChange={props.edit ? props.handleChangeEdit : props.handleChangeNew}
                             name='costPerHour'
                             step='any'
-                            defaultValue={props.newData.costPerHour}
+                            defaultValue={props.editForm.costPerHour}
                         />
                     </Form.Group>
                     <div className='d-flex flex-row-reverse'>
